@@ -28,21 +28,6 @@ namespace Example
             Console.WriteLine();
 
             ThorlabsPM pm = new ThorlabsPM(dpm.LastDevice);
-
-            //TestSCPI("SYSTEM:SENSOR:IDN?");
-            //TestSCPI("*IDN?");
-            //TestSCPI("SYSTEM:VERSION?");
-            //TestSCPI("CALIBRATION:STRING?");
-            //TestSCPI("SENSE:CORRECTION:WAVELENGTH?");
-            //TestSCPI("CONFIGURE?");
-            //TestSCPI("READ?");
-            //TestSCPI("READ?");
-            //TestSCPI("SYSTEM:ERROR:NEXT?");
-            //pm.ScpiWrite("CONFIGURE:SCALAR:TEMPERATURE");
-            //TestSCPI("SYSTEM:ERROR:NEXT?");
-            //TestSCPI("CONFIGURE?");
-            //TestSCPI("READ?");
-            //TestSCPI("READ?");
             
             Console.WriteLine();
 
@@ -103,6 +88,13 @@ namespace Example
             //Thread.Sleep(5000);
             SCPIquery("STATUS:OPERATION:EVENT?");
             SCPIquery("STATUS:OPERATION:CONDITION?");
+            SCPIquery("SENSE:CURRENT:DC:RANGE:AUTO?");
+            SCPIquery("SENSE:CURRENT:DC:RANGE:UPPER?");
+
+            SCPIwrite("SENSE:CURRENT:DC:RANGE:UPPER 5.0e-6");
+            SCPIquery("SENSE:CURRENT:DC:RANGE:UPPER?");
+            SCPIquery("SENSE:CURRENT:DC:RANGE:UPPER? MINIMUM");
+            SCPIquery("SENSE:CURRENT:DC:RANGE:UPPER? MAXIMUM");
 
             pm.SetWavelength(633);
 
@@ -114,8 +106,8 @@ namespace Example
                 DisplayOnly($"power:       {pm.MeasurePower()} W");
                 DisplayOnly($"current:     {pm.MeasureCurrent()} A");
                 DisplayOnly($"voltage:     {pm.MeasureVoltage()} V");
-                DisplayOnly($"temperature: {pm.MeasureTemperature()} °C");
-                DisplayOnly($"energy:      {pm.MeasureEnergy()} J");
+                //DisplayOnly($"temperature: {pm.MeasureTemperature()} °C");
+                //DisplayOnly($"energy:      {pm.MeasureEnergy()} J");
                 //DisplayOnly($"frequency:   {pm.MeasureFrequency()} Hz");
             }
 

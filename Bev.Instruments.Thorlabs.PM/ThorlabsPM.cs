@@ -54,7 +54,7 @@ namespace Bev.Instruments.Thorlabs.PM
                 //return value;
                 ScpiWrite("CONFIGURE:SCALAR:POWER");
                 if (ScpiError()) return double.NaN;
-                return ParseMyDouble(ScpiWriteRead("READ?"));
+                return ConvertScpiInf(ParseMyDouble(ScpiWriteRead("READ?")));
             }
             return double.NaN;
         }
@@ -66,7 +66,7 @@ namespace Bev.Instruments.Thorlabs.PM
                 // pm.measEnergy(out double value);
                 ScpiWrite("CONFIGURE:SCALAR:ENERGY");
                 if (ScpiError()) return double.NaN;
-                return ParseMyDouble(ScpiWriteRead("READ?"));
+                return ConvertScpiInf(ParseMyDouble(ScpiWriteRead("READ?")));
             }
             return double.NaN;
         }
@@ -78,7 +78,7 @@ namespace Bev.Instruments.Thorlabs.PM
                 // pm.measCurrent(out double value);
                 ScpiWrite("CONFIGURE:SCALAR:CURRENT");
                 if (ScpiError()) return double.NaN;
-                return ParseMyDouble(ScpiWriteRead("READ?"));
+                return ConvertScpiInf(ParseMyDouble(ScpiWriteRead("READ?")));
             }
             return double.NaN;
         }
@@ -90,7 +90,7 @@ namespace Bev.Instruments.Thorlabs.PM
                 // pm.measVoltage(out double value);
                 ScpiWrite("CONFIGURE:SCALAR:VOLTAGE");
                 if (ScpiError()) return double.NaN;
-                return ParseMyDouble(ScpiWriteRead("READ?"));
+                return ConvertScpiInf(ParseMyDouble(ScpiWriteRead("READ?")));
             }
             return double.NaN;
         }
@@ -101,7 +101,7 @@ namespace Bev.Instruments.Thorlabs.PM
             {
                 ScpiWrite("CONFIGURE:SCALAR:TEMPERATURE");
                 if (ScpiError()) return double.NaN;
-                return ParseMyDouble(ScpiWriteRead("READ?"));
+                return ConvertScpiInf(ParseMyDouble(ScpiWriteRead("READ?")));
             }
             return double.NaN;
         }
@@ -110,7 +110,7 @@ namespace Bev.Instruments.Thorlabs.PM
         {
             ScpiWrite("CONFIGURE:SCALAR:FREQUENCY");
             if (ScpiError()) return double.NaN;
-            return ParseMyDouble(ScpiWriteRead("READ?"));
+            return ConvertScpiInf(ParseMyDouble(ScpiWriteRead("READ?")));
         }
 
         public void SetWavelength(double wavelength)
@@ -233,31 +233,57 @@ namespace Bev.Instruments.Thorlabs.PM
             return double.NaN;
         }
 
+        //private void UpdateInstrumentInfo()
+        //{
+        //    StringBuilder sb1 = new StringBuilder(Capacity);
+        //    StringBuilder sb2 = new StringBuilder(Capacity);
+        //    StringBuilder sb3 = new StringBuilder(Capacity);
+        //    StringBuilder sb4 = new StringBuilder(Capacity);
+        //    pm.identificationQuery(sb1, sb2, sb3, sb4);
+        //    InstrumentManufacturer = sb1.ToString();
+        //    InstrumentType = sb2.ToString();
+        //    InstrumentSerialNumber = sb3.ToString();
+        //    InstrumentFirmwareVersion = sb4.ToString();
+        //}
+
         private void UpdateInstrumentInfo()
         {
-            StringBuilder sb1 = new StringBuilder(Capacity);
-            StringBuilder sb2 = new StringBuilder(Capacity);
-            StringBuilder sb3 = new StringBuilder(Capacity);
-            StringBuilder sb4 = new StringBuilder(Capacity);
-            pm.identificationQuery(sb1, sb2, sb3, sb4);
-            InstrumentManufacturer = sb1.ToString();
-            InstrumentType = sb2.ToString();
-            InstrumentSerialNumber = sb3.ToString();
-            InstrumentFirmwareVersion = sb4.ToString();
+            string str = ScpiWriteRead("*IDN?");
+            string[] token = str.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (token.Length != 4)
+                return;
+            InstrumentManufacturer = token[0];
+            InstrumentType = token[1];
+            InstrumentSerialNumber = token[2];
+            InstrumentFirmwareVersion = token[3];
         }
+
+        //private void UpdateSensorInfo()
+        //{
+        //    StringBuilder sb1 = new StringBuilder(Capacity);
+        //    StringBuilder sb2 = new StringBuilder(Capacity);
+        //    StringBuilder sb3 = new StringBuilder(Capacity);
+        //    pm.getSensorInfo(sb1, sb2, sb3, out short sensorType, out short sensorSubtype, out short sensorFlags);
+        //    DetectorType = sb1.ToString();
+        //    DetectorSerialNumber = sb2.ToString();
+        //    DetectorCalibration = sb3.ToString();
+        //    SensorType = (SensorType)sensorType;
+        //    SensorSubtype = (SensorSubtype)sensorSubtype;
+        //    SensorFlags = (SensorFlags)sensorFlags;
+        //}
 
         private void UpdateSensorInfo()
         {
-            StringBuilder sb1 = new StringBuilder(Capacity);
-            StringBuilder sb2 = new StringBuilder(Capacity);
-            StringBuilder sb3 = new StringBuilder(Capacity);
-            pm.getSensorInfo(sb1, sb2, sb3, out short sensorType, out short sensorSubtype, out short sensorFlags);
-            DetectorType = sb1.ToString();
-            DetectorSerialNumber = sb2.ToString();
-            DetectorCalibration = sb3.ToString();
-            SensorType = (SensorType)sensorType;
-            SensorSubtype = (SensorSubtype)sensorSubtype;
-            SensorFlags = (SensorFlags)sensorFlags;
+            string str = ScpiWriteRead("SYSTEM:SENSOR:IDN?");
+            string[] token = str.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            if (token.Length != 6)
+                return;
+            DetectorType = token[0];
+            DetectorSerialNumber = token[1];
+            DetectorCalibration = token[2];
+            SensorType = (SensorType)short.Parse(token[3]);
+            SensorSubtype = (SensorSubtype)short.Parse(token[4]);
+            SensorFlags = (SensorFlags)short.Parse(token[5]);
         }
 
         private void UpdateDriverRevision()
@@ -285,6 +311,15 @@ namespace Bev.Instruments.Thorlabs.PM
             if (double.TryParse(str, out double value))
                 return value;
             return double.NaN;
+        }
+
+        private double ConvertScpiInf(double value)
+        {
+            if (value >= 9.9E37) 
+                return double.PositiveInfinity;
+            if (value <= -9.9E37)
+                return double.NegativeInfinity;
+            return value;
         }
     }
 }
