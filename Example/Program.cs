@@ -50,6 +50,7 @@ namespace Example
             LogAndDisplay($"# SensorType:                {pm.SensorType} - {pm.SensorSubtype} - {pm.SensorFlags}");
             LogAndDisplay($"# WavelengthRange:           {pm.GetMinimumWavelength()} nm - {pm.GetMaximumWavelength()} nm");
             LogAndDisplay($"# PowerRange-Range:          {pm.GetMinimumRange()} W - {pm.GetMaximumRange()} W");
+            LogAndDisplay($"# CurrentRange-Range:        {pm.GetMinimumCurrentRange()} A - {pm.GetMaximumCurrentRange()} A");
             //LogAndDisplay($"# CurrentRanges:             {pm.GetCurrentRanges().Length}");
             LogAndDisplay("##############################################################"); 
             LogOnly($"wavelength (nm), responsivity ({pm.ResponsivityUnit})");
@@ -63,38 +64,36 @@ namespace Example
 
             streamWriter.Close();
 
-            SCPIquery("*IDN?");
-            SCPIquery("*OPC?");
-            SCPIquery("SYSTEM:SENSOR:IDN?");
+            Console.WriteLine();
+            CheckMRange(MeasurementRange.Range03);
+            CheckMRange(MeasurementRange.Range04);
+            CheckMRange(MeasurementRange.Range05);
+            CheckMRange(MeasurementRange.Range06);
+            CheckMRange(MeasurementRange.Range07);
+            CheckMRange(MeasurementRange.Range08);
+            CheckMRange(MeasurementRange.Range05);
+
+
+            //pm.SetCurrentRange(MeasurementRange.Range03);
+            //Console.WriteLine(pm.GetCurrentRange());
+            //pm.SetCurrentRange(MeasurementRange.Range04);
+            //Console.WriteLine(pm.GetCurrentRange());
+            //pm.SetCurrentRange(MeasurementRange.Range05);
+            //Console.WriteLine(pm.GetCurrentRange());
+            //pm.SetCurrentRange(MeasurementRange.Range06);
+            //Console.WriteLine(pm.GetCurrentRange());
+            //pm.SetCurrentRange(MeasurementRange.Range07);
+            //Console.WriteLine(pm.GetCurrentRange());
+            //pm.SetCurrentRange(MeasurementRange.Range08);
+            //Console.WriteLine(pm.GetCurrentRange());
+            //pm.SetCurrentRange(MeasurementRange.Range03);
+            //Console.WriteLine(pm.GetCurrentRange());
+
+            //SCPIquery("*IDN?");
+            //SCPIquery("SYSTEM:SENSOR:IDN?");
             SCPIquery("SYSTEM:VERSION?");
             //SCPIwrite("SENSE:CORRECTION:WAVELENGTH 632.8 nm");
-            //SCPIquery("SENSE:CORRECTION:WAVELENGTH?");
-            //SCPIquery("SENSE:CURRENT:DC:RANGE:UPPER?");
-            //SCPIquery("SENSE:CURRENT:DC:RANGE:UPPER? MIN");
-            //SCPIquery("SENSE:CURRENT:DC:RANGE:UPPER? MAX");
-            //SCPIquery("SENSE:POWER:DC:RANGE:UPPER?");
-            //SCPIquery("SENSE:POWER:DC:RANGE:UPPER? MIN");
-            //SCPIquery("SENSE:POWER:DC:RANGE:UPPER? MAX");
-            //SCPIquery("STATUS:OPERATION:EVENT?");
-            //SCPIquery("STATUS:OPERATION:CONDITION?");
-            //SCPIquery("SENSE:VOLTAGE:DC:RANGE:UPPER?");
-            //SCPIquery("SENSE:VOLTAGE:DC:RANGE:UPPER? MIN");
-            //SCPIquery("SENSE:VOLTAGE:DC:RANGE:UPPER? MAX");
-            //TestSCPIquery("SENSE:AVERAGE:COUNT?");
-            SCPIquery("SYSTEM:DATE?");
-            //SCPIwrite("*CLS");
-            //SCPIquery("*TST?");
-            //SCPIwrite("*RST");
-            //Thread.Sleep(5000);
-            SCPIquery("STATUS:OPERATION:EVENT?");
-            SCPIquery("STATUS:OPERATION:CONDITION?");
-            SCPIquery("SENSE:CURRENT:DC:RANGE:AUTO?");
-            SCPIquery("SENSE:CURRENT:DC:RANGE:UPPER?");
-
-            SCPIwrite("SENSE:CURRENT:DC:RANGE:UPPER 5.0e-6");
-            SCPIquery("SENSE:CURRENT:DC:RANGE:UPPER?");
-            SCPIquery("SENSE:CURRENT:DC:RANGE:UPPER? MINIMUM");
-            SCPIquery("SENSE:CURRENT:DC:RANGE:UPPER? MAXIMUM");
+    
 
             pm.SetWavelength(633);
 
@@ -140,6 +139,18 @@ namespace Example
             {
                 pm.ScpiWrite(command);
                 Console.WriteLine($"'{command}'");
+            }
+            /***************************************************/
+            void CheckRange(double value)
+            {
+                pm.SetCurrentRange(value);
+                Console.WriteLine($"{value:F10} -> {pm.GetCurrentRange():F9}");
+            }
+            /***************************************************/
+            void CheckMRange(MeasurementRange value)
+            {
+                pm.SetCurrentRange(value);
+                Console.WriteLine($"{value} -> {pm.GetCurrentRange():F10}");
             }
             /***************************************************/
         }

@@ -50,8 +50,6 @@ namespace Bev.Instruments.Thorlabs.PM
         {
             if (SensorFlags.HasFlag(SensorFlags.IsPowerSensor))
             {
-                //pm.measPower(out double value);
-                //return value;
                 ScpiWrite("CONFIGURE:SCALAR:POWER");
                 if (ScpiError()) return double.NaN;
                 return ConvertScpiInf(ParseMyDouble(ScpiWriteRead("READ?")));
@@ -63,7 +61,6 @@ namespace Bev.Instruments.Thorlabs.PM
         {
             if (SensorFlags.HasFlag(SensorFlags.IsEnergySensor))
             {
-                // pm.measEnergy(out double value);
                 ScpiWrite("CONFIGURE:SCALAR:ENERGY");
                 if (ScpiError()) return double.NaN;
                 return ConvertScpiInf(ParseMyDouble(ScpiWriteRead("READ?")));
@@ -75,7 +72,6 @@ namespace Bev.Instruments.Thorlabs.PM
         {
             if (SensorType == SensorType.Photodiode)
             {
-                // pm.measCurrent(out double value);
                 ScpiWrite("CONFIGURE:SCALAR:CURRENT");
                 if (ScpiError()) return double.NaN;
                 return ConvertScpiInf(ParseMyDouble(ScpiWriteRead("READ?")));
@@ -87,7 +83,6 @@ namespace Bev.Instruments.Thorlabs.PM
         {
             if (SensorType == SensorType.Thermopile || SensorType == SensorType.Pyroelectric)
             {
-                // pm.measVoltage(out double value);
                 ScpiWrite("CONFIGURE:SCALAR:VOLTAGE");
                 if (ScpiError()) return double.NaN;
                 return ConvertScpiInf(ParseMyDouble(ScpiWriteRead("READ?")));
@@ -116,7 +111,6 @@ namespace Bev.Instruments.Thorlabs.PM
         public void SetWavelength(double wavelength)
         {
             if (SensorFlags.HasFlag(SensorFlags.IsWavelengthSettable))
-                //pm.setWavelength(wavelength);
                 ScpiWrite($"SENSE:CORRECTION:WAVELENGTH {wavelength}");
         }
 
@@ -126,7 +120,7 @@ namespace Bev.Instruments.Thorlabs.PM
 
         public double GetMaximumWavelength() => GetWavelength(2);
 
-        public double GetResponsivity()
+        public double GetResponsivity()  //!!!
         {
             double value = double.NaN;
             if (SensorType == SensorType.Photodiode)
@@ -153,6 +147,52 @@ namespace Bev.Instruments.Thorlabs.PM
 
         public double GetMaximumRange() => GetRange(2);
 
+        public double GetCurrentRange() => GetCurrentRange(0);
+
+        public double GetMinimumCurrentRange() => GetCurrentRange(1);
+
+        public double GetMaximumCurrentRange() => GetCurrentRange(2);
+
+        public void SetCurrentRange(double value)
+        {
+            if (SensorType == SensorType.Photodiode)
+                ScpiWrite($"SENSE:CURRENT:RANGE:UPPER {value}");
+        }
+
+        public void SetCurrentRange(MeasurementRange measurementRange)
+        {
+            // this works for the PM100D only
+            double upperValue = 5.5e-3;
+            switch (measurementRange)
+            {
+                case MeasurementRange.Unknown:
+                    break;
+                case MeasurementRange.RangeOverflow:
+                    break;
+                case MeasurementRange.Range03:
+                    upperValue = 5.5e-3;
+                    break;
+                case MeasurementRange.Range04:
+                    upperValue = 5.5e-4;
+                    break;
+                case MeasurementRange.Range05:
+                    upperValue = 5.5e-5;
+                    break;
+                case MeasurementRange.Range06:
+                    upperValue = 5.5e-6;
+                    break;
+                case MeasurementRange.Range07:
+                    upperValue = 5.5e-7;
+                    break;
+                case MeasurementRange.Range08:
+                    upperValue = 5.5e-8;
+                    break;
+                default:
+                    break;
+            }
+            SetCurrentRange(upperValue);
+        }
+
         // TODO this does not work!
         public double[] GetCurrentRanges()
         {
@@ -169,9 +209,9 @@ namespace Bev.Instruments.Thorlabs.PM
             return value;
         }
 
-        public void ScpiWrite(string command) => pm.writeRaw(command);
+        public void ScpiWrite(string command) => pm.writeRaw(command);  //!!!
 
-        public string ScpiRead()
+        public string ScpiRead()  //!!!
         {
             uint bufferSize = Capacity;
             StringBuilder sb = new StringBuilder((int)bufferSize);
@@ -185,7 +225,7 @@ namespace Bev.Instruments.Thorlabs.PM
         {
             try
             {
-                if(deviceClear) ScpiWrite("*CLS");
+                if (deviceClear) ScpiWrite("*CLS");
                 ScpiWrite(command);
                 Thread.Sleep(MillisecondsTimeout);
                 return ScpiRead();
@@ -218,7 +258,24 @@ namespace Bev.Instruments.Thorlabs.PM
             }
         }
 
-        private double GetRange(short attribute)
+        private double GetCurrentRange(short attribute)
+        {
+            if (SensorType != SensorType.Photodiode)
+                return double.NaN;
+            switch (attribute)
+            {
+                case 0:
+                    return ParseMyDouble(ScpiWriteRead("SENSE:CURRENT:DC:RANGE:UPPER?"));
+                case 1:
+                    return ParseMyDouble(ScpiWriteRead("SENSE:CURRENT:DC:RANGE:UPPER? MINIMUM"));
+                case 2:
+                    return ParseMyDouble(ScpiWriteRead("SENSE:CURRENT:DC:RANGE:UPPER? MAXIMUM"));
+                default:
+                    return double.NaN;
+            }
+        }
+
+        private double GetRange(short attribute)  //!!!
         {
             if (SensorFlags.HasFlag(SensorFlags.IsPowerSensor))
             {
@@ -233,19 +290,6 @@ namespace Bev.Instruments.Thorlabs.PM
             return double.NaN;
         }
 
-        //private void UpdateInstrumentInfo()
-        //{
-        //    StringBuilder sb1 = new StringBuilder(Capacity);
-        //    StringBuilder sb2 = new StringBuilder(Capacity);
-        //    StringBuilder sb3 = new StringBuilder(Capacity);
-        //    StringBuilder sb4 = new StringBuilder(Capacity);
-        //    pm.identificationQuery(sb1, sb2, sb3, sb4);
-        //    InstrumentManufacturer = sb1.ToString();
-        //    InstrumentType = sb2.ToString();
-        //    InstrumentSerialNumber = sb3.ToString();
-        //    InstrumentFirmwareVersion = sb4.ToString();
-        //}
-
         private void UpdateInstrumentInfo()
         {
             string str = ScpiWriteRead("*IDN?");
@@ -257,20 +301,6 @@ namespace Bev.Instruments.Thorlabs.PM
             InstrumentSerialNumber = token[2];
             InstrumentFirmwareVersion = token[3];
         }
-
-        //private void UpdateSensorInfo()
-        //{
-        //    StringBuilder sb1 = new StringBuilder(Capacity);
-        //    StringBuilder sb2 = new StringBuilder(Capacity);
-        //    StringBuilder sb3 = new StringBuilder(Capacity);
-        //    pm.getSensorInfo(sb1, sb2, sb3, out short sensorType, out short sensorSubtype, out short sensorFlags);
-        //    DetectorType = sb1.ToString();
-        //    DetectorSerialNumber = sb2.ToString();
-        //    DetectorCalibration = sb3.ToString();
-        //    SensorType = (SensorType)sensorType;
-        //    SensorSubtype = (SensorSubtype)sensorSubtype;
-        //    SensorFlags = (SensorFlags)sensorFlags;
-        //}
 
         private void UpdateSensorInfo()
         {
@@ -286,7 +316,7 @@ namespace Bev.Instruments.Thorlabs.PM
             SensorFlags = (SensorFlags)short.Parse(token[5]);
         }
 
-        private void UpdateDriverRevision()
+        private void UpdateDriverRevision() //!!!
         {
             StringBuilder sb1 = new StringBuilder(Capacity);
             StringBuilder sb2 = new StringBuilder(Capacity);
@@ -315,10 +345,12 @@ namespace Bev.Instruments.Thorlabs.PM
 
         private double ConvertScpiInf(double value)
         {
-            if (value >= 9.9E37) 
+            if (value == 9.9E37)
                 return double.PositiveInfinity;
-            if (value <= -9.9E37)
+            if (value == -9.9E37)
                 return double.NegativeInfinity;
+            if (value == 9.91E37)
+                return double.NaN;
             return value;
         }
     }
