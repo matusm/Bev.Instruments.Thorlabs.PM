@@ -58,6 +58,46 @@ namespace Bev.Instruments.Thorlabs.PM
         public void SelectAutoRange() => ScpiWrite("CURRENT:RANGE:AUTO ON");
 
         public void DeselectAutoRange() => ScpiWrite("CURRENT:RANGE:AUTO OFF");
+
+        public double GetSpecification(double current) => GetSpecification(current, EstimateMeasurementRange(current));
+
+        public double GetSpecification(double current, MeasurementRange range)
+        {
+            double errorInterval = 0;
+            current = Math.Abs(current);
+            switch (range)
+            {
+                case MeasurementRange.Unknown:
+                case MeasurementRange.RangeOverflow:
+                    errorInterval = double.NaN;
+                    break;
+                case MeasurementRange.Range03:
+                    errorInterval = 0.01e-3;
+                    break;
+                case MeasurementRange.Range04:
+                    errorInterval = 0.01e-4;
+                    break;
+                case MeasurementRange.Range05:
+                    errorInterval = 0.01e-5;
+                    break;
+                case MeasurementRange.Range06:
+                    errorInterval = 0.01e-6;
+                    break;
+                case MeasurementRange.Range07:
+                    errorInterval = 0.025e-7;
+                    break;
+                case MeasurementRange.Range08:
+                    errorInterval = 0.025e-8;
+                    break;
+                default:
+                    break;
+            }
+            return errorInterval;
+        }
+
+        public double GetMeasurementUncertainty(double current) => GetMeasurementUncertainty(current, EstimateMeasurementRange(current));
+
+        public double GetMeasurementUncertainty(double current, MeasurementRange range) => Math.Sqrt(1.0 / 3.0) * GetSpecification(current, range);
         #endregion
 
         public void SetAdapterPhotodiode() => SetAdapter("PHOTODIODE"); // you must quit after this command!
