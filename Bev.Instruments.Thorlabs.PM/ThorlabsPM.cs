@@ -35,6 +35,31 @@ namespace Bev.Instruments.Thorlabs.PM
         public SensorSubtype SensorSubtype { get; private set; }
         public SensorFlags SensorFlags { get; private set; }
 
+        #region syntactic sugar to mimic a P9710 for calibration as a current meter
+        public double GetCurrent() => MeasureCurrent();
+
+        public MeasurementRange GetMeasurementRange() => EstimateMeasurementRange(GetCurrentRange());
+
+        public MeasurementRange EstimateMeasurementRange(double current)
+        {
+            if (double.IsNaN(current)) return MeasurementRange.Unknown;
+            current = Math.Abs(current);
+            if (current > 5.5E-3) return MeasurementRange.RangeOverflow;
+            if (current > 5.5E-4) return MeasurementRange.Range03;
+            if (current > 5.5E-5) return MeasurementRange.Range04;
+            if (current > 5.5E-6) return MeasurementRange.Range05;
+            if (current > 5.5E-7) return MeasurementRange.Range06;
+            if (current > 5.5E-8) return MeasurementRange.Range07;
+            return MeasurementRange.Range08;
+        }
+
+        public void SetMeasurementRange(MeasurementRange measurementRange) => SetCurrentRange(measurementRange);
+
+        public void SelectAutoRange() => ScpiWrite("CURRENT:RANGE:AUTO ON");
+
+        public void DeselectAutoRange() => ScpiWrite("CURRENT:RANGE:AUTO OFF");
+        #endregion
+
         public void SetAdapterPhotodiode() => SetAdapter("PHOTODIODE"); // you must quit after this command!
 
         public void SetAdapterThermal() => SetAdapter("THERMAL"); // you must quit after this command!

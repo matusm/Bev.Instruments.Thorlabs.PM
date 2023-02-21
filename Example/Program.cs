@@ -102,9 +102,9 @@ namespace Example
             {
                 Thread.Sleep(500);
                 Console.WriteLine();
-                DisplayOnly($"power:       {pm.MeasurePower()} W");
-                DisplayOnly($"current:     {pm.MeasureCurrent()} A");
-                DisplayOnly($"voltage:     {pm.MeasureVoltage()} V");
+                //DisplayOnly($"power:       {pm.MeasurePower()} W");
+                DisplayOnly($"current:     {pm.GetCurrent()} A");
+                //DisplayOnly($"voltage:     {pm.MeasureVoltage()} V");
                 //DisplayOnly($"temperature: {pm.MeasureTemperature()} °C");
                 //DisplayOnly($"energy:      {pm.MeasureEnergy()} J");
                 //DisplayOnly($"frequency:   {pm.MeasureFrequency()} Hz");
@@ -149,8 +149,9 @@ namespace Example
             /***************************************************/
             void CheckMRange(MeasurementRange value)
             {
-                pm.SetCurrentRange(value);
-                Console.WriteLine($"{value} -> {pm.GetCurrentRange():F10}");
+                pm.SetMeasurementRange(value);
+                Console.WriteLine($"{value} -> {pm.GetMeasurementRange()}");
+                Console.ReadKey();
             }
             /***************************************************/
         }
