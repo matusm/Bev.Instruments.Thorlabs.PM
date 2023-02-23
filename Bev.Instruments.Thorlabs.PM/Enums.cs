@@ -31,8 +31,55 @@ namespace Bev.Instruments.Thorlabs.PM
         HasTemperatureSensor = 0x0100       // With Temperature sensor
     }
 
-
     // PM100D specific!
+    public static class Extensions
+    {
+        public static MeasurementRange Increment(this MeasurementRange range)
+        {
+            switch (range)
+            {
+                case MeasurementRange.Unknown:
+                case MeasurementRange.RangeOverflow:
+                case MeasurementRange.Range03:
+                    return range;
+                case MeasurementRange.Range04:
+                    return MeasurementRange.Range03;
+                case MeasurementRange.Range05:
+                    return MeasurementRange.Range04; ;
+                case MeasurementRange.Range06:
+                    return MeasurementRange.Range05; ;
+                case MeasurementRange.Range07:
+                    return MeasurementRange.Range06; ;
+                case MeasurementRange.Range08:
+                    return MeasurementRange.Range07; ;
+                default:
+                    return MeasurementRange.Unknown; ;
+            }
+        }
+        public static MeasurementRange Decrement(this MeasurementRange range)
+        {
+            switch (range)
+            {
+                case MeasurementRange.Unknown:
+                case MeasurementRange.RangeOverflow:
+                case MeasurementRange.Range08:
+                    return range;
+                case MeasurementRange.Range03:
+                    return MeasurementRange.Range04; ;
+                case MeasurementRange.Range04:
+                    return MeasurementRange.Range05;
+                case MeasurementRange.Range05:
+                    return MeasurementRange.Range06; ;
+                case MeasurementRange.Range06:
+                    return MeasurementRange.Range07; ;
+                case MeasurementRange.Range07:
+                    return MeasurementRange.Range08; ;
+                default:
+                    return MeasurementRange.Unknown; ;
+            }
+        }
+    }
+
     public enum MeasurementRange
     {
         Unknown,

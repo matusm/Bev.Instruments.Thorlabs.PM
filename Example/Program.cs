@@ -66,13 +66,17 @@ namespace Example
 
             Console.WriteLine();
             CheckMRange(MeasurementRange.Range03);
-            CheckMRange(MeasurementRange.Range04);
-            CheckMRange(MeasurementRange.Range05);
-            CheckMRange(MeasurementRange.Range06);
-            CheckMRange(MeasurementRange.Range07);
-            CheckMRange(MeasurementRange.Range08);
-            CheckMRange(MeasurementRange.Range05);
+            Console.WriteLine(pm.GetSpecification(0, pm.GetMeasurementRange()));
 
+            CheckMRange(MeasurementRange.Range08);
+            Console.WriteLine(pm.GetSpecification(0, pm.GetMeasurementRange()));
+            pm.SelectAutoRange();
+            Console.WriteLine(pm.GetMeasurementRange());
+
+
+
+
+            
 
             //pm.SetCurrentRange(MeasurementRange.Range03);
             //Console.WriteLine(pm.GetCurrentRange());
@@ -91,7 +95,7 @@ namespace Example
 
             //SCPIquery("*IDN?");
             //SCPIquery("SYSTEM:SENSOR:IDN?");
-            SCPIquery("SYSTEM:VERSION?");
+            //SCPIquery("SYSTEM:VERSION?");
             //SCPIwrite("SENSE:CORRECTION:WAVELENGTH 632.8 nm");
     
 
