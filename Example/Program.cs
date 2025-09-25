@@ -31,7 +31,7 @@ namespace Example
             
             Console.WriteLine();
 
-            string csvFileName =$"X_TLPM_{pm.DetectorSerialNumber}.csv";
+            string csvFileName =$"TLPM_{pm.DetectorSerialNumber}.csv";
             StreamWriter streamWriter = new StreamWriter(csvFileName, false);
 
             int minWl = (int)pm.GetMinimumWavelength();
@@ -55,28 +55,24 @@ namespace Example
             LogAndDisplay("##############################################################"); 
             LogOnly($"wavelength (nm), responsivity ({pm.ResponsivityUnit})");
 
-            //for (int w = minWl; w <= maxWl; w += 1)
-            //{
-            //    pm.SetWavelength(w);
-            //    DisplayOnly($"{pm.GetWavelength(),4} nm  ->  {pm.GetResponsivity():F7} {pm.ResponsivityUnit}");
-            //    LogOnly($"{pm.GetWavelength()}, {pm.GetResponsivity()}");
-            //}
+            for (int w = minWl; w <= maxWl; w += 1)
+            {
+                pm.SetWavelength(w);
+                DisplayOnly($"{pm.GetWavelength(),4} nm  ->  {pm.GetResponsivity():F7} {pm.ResponsivityUnit}");
+                LogOnly($"{pm.GetWavelength()}, {pm.GetResponsivity()}");
+            }
 
             streamWriter.Close();
 
-            Console.WriteLine();
-            CheckMRange(MeasurementRange.Range03);
-            Console.WriteLine(pm.GetSpecification(0, pm.GetMeasurementRange()));
+            //Console.WriteLine();
+            //CheckMRange(MeasurementRange.Range03);
+            //Console.WriteLine(pm.GetSpecification(0, pm.GetMeasurementRange()));
 
-            CheckMRange(MeasurementRange.Range08);
-            Console.WriteLine(pm.GetSpecification(0, pm.GetMeasurementRange()));
-            pm.SelectAutoRange();
-            Console.WriteLine(pm.GetMeasurementRange());
+            //CheckMRange(MeasurementRange.Range08);
+            //Console.WriteLine(pm.GetSpecification(0, pm.GetMeasurementRange()));
+            //pm.SelectAutoRange();
+            //Console.WriteLine(pm.GetMeasurementRange());
 
-
-
-
-            
 
             //pm.SetCurrentRange(MeasurementRange.Range03);
             //Console.WriteLine(pm.GetCurrentRange());
@@ -99,20 +95,20 @@ namespace Example
             //SCPIwrite("SENSE:CORRECTION:WAVELENGTH 632.8 nm");
     
 
-            pm.SetWavelength(633);
+            //pm.SetWavelength(633);
 
-            Console.WriteLine();
-            for (int i = 0; i < 3; i++)
-            {
-                Thread.Sleep(500);
-                Console.WriteLine();
-                //DisplayOnly($"power:       {pm.MeasurePower()} W");
-                DisplayOnly($"current:     {pm.GetCurrent()} A");
-                //DisplayOnly($"voltage:     {pm.MeasureVoltage()} V");
-                //DisplayOnly($"temperature: {pm.MeasureTemperature()} °C");
-                //DisplayOnly($"energy:      {pm.MeasureEnergy()} J");
-                //DisplayOnly($"frequency:   {pm.MeasureFrequency()} Hz");
-            }
+            //Console.WriteLine();
+            //for (int i = 0; i < 3; i++)
+            //{
+            //    Thread.Sleep(500);
+            //    Console.WriteLine();
+            //    //DisplayOnly($"power:       {pm.MeasurePower()} W");
+            //    DisplayOnly($"current:     {pm.GetCurrent()} A");
+            //    //DisplayOnly($"voltage:     {pm.MeasureVoltage()} V");
+            //    //DisplayOnly($"temperature: {pm.MeasureTemperature()} °C");
+            //    //DisplayOnly($"energy:      {pm.MeasureEnergy()} J");
+            //    //DisplayOnly($"frequency:   {pm.MeasureFrequency()} Hz");
+            //}
 
             return 0;
 
