@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using Thorlabs.TLPM_32.Interop;
+using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
-using Thorlabs.TLPM_32.Interop;
-using System;
 
 namespace Bev.Instruments.Thorlabs.PM
 {

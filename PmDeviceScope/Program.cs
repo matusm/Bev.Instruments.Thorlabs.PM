@@ -19,15 +19,12 @@ namespace PmDeviceScope
             }
             Console.WriteLine($"Number of detected devices: {dpm.NumberOfDevices}");
             foreach (var s in dpm.NamesOfDevices)
-                Console.WriteLine($"{s}");
+                Console.WriteLine($"   {s}");
             Console.WriteLine();
 
             ThorlabsPM pm = new ThorlabsPM(dpm.LastDevice);
 
-            Console.WriteLine();
-
-            string csvFileName = $"TLPM_{pm.DetectorSerialNumber}.csv";
-
+            string csvFileName = $"TLPM_{pm.DetectorType}_{pm.DetectorSerialNumber}.csv";
             StreamWriter streamWriter = new StreamWriter(csvFileName, false);
 
             int minWl = (int)pm.GetMinimumWavelength();
@@ -47,7 +44,8 @@ namespace PmDeviceScope
             LogAndDisplay($"# WavelengthRange:           {pm.GetMinimumWavelength()} nm - {pm.GetMaximumWavelength()} nm");
             LogAndDisplay($"# PowerRange-Range:          {pm.GetMinimumRange()} W - {pm.GetMaximumRange()} W");
             LogAndDisplay($"# CurrentRange-Range:        {pm.GetMinimumCurrentRange()} A - {pm.GetMaximumCurrentRange()} A");
-            LogAndDisplay($"# CurrentRanges:             {pm.GetCurrentRanges().Length}");
+            //LogAndDisplay($"# CurrentRanges:             {pm.GetCurrentRanges().Length}");
+            LogAndDisplay($"# Wavelength:                {pm.GetWavelength()} nm");
             LogAndDisplay("##############################################################");
             LogOnly($"wavelength (nm), responsivity ({pm.ResponsivityUnit})");
 
@@ -59,6 +57,7 @@ namespace PmDeviceScope
             }
 
             streamWriter.Close();
+            pm.SetWavelength(633);
             return 0;
 
             /***************************************************/

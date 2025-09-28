@@ -7,8 +7,8 @@ namespace Bev.Instruments.Thorlabs.PM
 {
     public class ThorlabsPM
     {
-        private const int MillisecondsTimeout = 10;     // between SCPI write and read
-        private const int Capacity = 1024;              // of StringBuilder buffers
+        private const int SCPI_DELAY = 10;      // between SCPI write and read, in ms
+        private const int SB_CAPACITY = 1024;   // of StringBuilder buffers
         private readonly TLPM pm;
 
         public ThorlabsPM(string resourceName)
@@ -35,7 +35,7 @@ namespace Bev.Instruments.Thorlabs.PM
         public SensorSubtype SensorSubtype { get; private set; }
         public SensorFlags SensorFlags { get; private set; }
 
-        #region syntactic sugar to mimic a P9710 for calibration as a current meter
+        #region syntactic sugar to mimic a P9710 as a current meter (for calibration purposes)
         public double GetCurrent() => MeasureCurrent();
 
         public MeasurementRange GetMeasurementRange() => EstimateMeasurementRange(GetCurrentRange());
@@ -106,10 +106,7 @@ namespace Bev.Instruments.Thorlabs.PM
 
         public void SetAdapterPyro() => SetAdapter("PYRO"); // you must quit after this command!
 
-        private void SetAdapter(string v)
-        {
-            ScpiWrite($"INPUT:ADAPTER:TYPE {v}");
-        } // you must quit after this command!
+        private void SetAdapter(string v) => ScpiWrite($"INPUT:ADAPTER:TYPE {v}"); // you must quit after this command!
 
         public double MeasurePower()
         {
@@ -278,7 +275,7 @@ namespace Bev.Instruments.Thorlabs.PM
 
         public string ScpiRead()  //!!!
         {
-            uint bufferSize = Capacity;
+            uint bufferSize = SB_CAPACITY;
             StringBuilder sb = new StringBuilder((int)bufferSize);
             pm.readRaw(sb, bufferSize, out uint returnSize);
             return sb.ToString().Trim(new char[] { '\r', '\n', ' ' });
@@ -292,7 +289,7 @@ namespace Bev.Instruments.Thorlabs.PM
             {
                 if (deviceClear) ScpiWrite("*CLS");
                 ScpiWrite(command);
-                Thread.Sleep(MillisecondsTimeout);
+                Thread.Sleep(SCPI_DELAY);
                 return ScpiRead();
             }
             catch (Exception)
@@ -383,8 +380,8 @@ namespace Bev.Instruments.Thorlabs.PM
 
         private void UpdateDriverRevision() //!!!
         {
-            StringBuilder sb1 = new StringBuilder(Capacity);
-            StringBuilder sb2 = new StringBuilder(Capacity);
+            StringBuilder sb1 = new StringBuilder(SB_CAPACITY);
+            StringBuilder sb2 = new StringBuilder(SB_CAPACITY);
             pm.revisionQuery(sb1, sb2);
             DriverRevision = $"{sb1.ToString().Trim(new char[] { '\r', '\n' })}";
         }
